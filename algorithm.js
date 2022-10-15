@@ -51,6 +51,7 @@ class FirstFit {
       const block = this.ramUsed.find((block) => block.pid === pid);
       const blockIndex = this.ramUsed.indexOf(block);
       this.ramUsed.splice(blockIndex, 1);
+      block.pid = null;
       this.ramUnused.push(block);
       this.ramUnused.sort((a, b) => a.start - b.start);
       // 合并连续的内存
