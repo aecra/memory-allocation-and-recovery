@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <meta name='description' content='Leave a line of dialogue for the years to come.'>
+  <title>内存分配回收算法仿真实验</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+  <style>
+    body {
+      min-height: 100vh;
+      position: relative;
+    }
+    .head {
+      background-color: aquamarine;
+      height: 60px;
+      line-height: 60px;
+    }
+    .indicator-container {
+      display: flex;
+      justify-content: space-evenly;
+      background-color: #f5f5f5;
+      border-radius: 5px;
+    }
+    .indicator {
+      width: 270px;
+      height: 270px;
+      position: relative;
+    }
+    #process {
+      height: 420px;
+      overflow: scroll;
+      overflow-x:hidden;
+    }
+  </style>
+
+</head>
+
+<body>
+  <nav class="navbar navbar-dark bg-light">
+    <div class="container">
+      <h1 style="line-height: 40px; font-size: 23px;margin: 0;">内存分配回收算法仿真实验</h1>
+    </div>
+  </nav>
+
+  <div class="container" style="padding-top: 30px;padding-bottom: 80px;">
+    <div>
+      <p>当前内存分配状态</p>
+      <!-- 可视化展示内存状态 -->
+      <div id="distribution-stats-container"></div>
+      <div class="indicator-container" style="margin-top: 30px;">
+          <div id="internal-memory-fragmentation-container" class="indicator"></div>
+          <div id="external-memory-fragmentation-container" class="indicator"></div>
+          <div id="memory-usage-container" class="indicator"></div>
+      </div>
+    </div>
+
+    <div class="row g-3" style="margin-top: 30px;">
+      <div class="col">
+        <div class="card">
+          <div class="card-header">
+            <span>当前进程分配状态</span>
+          </div>
+          <div class="card-body" id="process">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">Pid</th>
+                  <th scope="col">Memory Size</th>
+                </tr>
+              </thead>
+              <tbody id="process-table">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <div class="card-header">
+            <span>内存和算法初始化</span>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label for="algorithm" class="form-label">选择算法</label>
+              <select class="form-select" id="algorithm">
+                <!-- <option selected>Open this select menu</option> -->
+                <option value="1">首次适应算法 First Fit</option>
+                <option value="2">最佳适应算法 Best Fit</option>
+                <option value="3">下次适应算法 Next Fit</option>
+                <option value="4">最差适应算法 Worst Fit</option>
+                <option value="5">TLSF</option>
+                <option value="6">Buddy systems</option>
+                <option value="7">分页内存分配算法</option>
+                <option value="8">分段内存分配算法</option>
+                <option value="9">段页式内存分配算法</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="ram-size" class="form-label">初始内存大小</label>
+              <input type="number" class="form-control" id="ramSize" placeholder="请输入内存大小" value="1000">
+            </div>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#init">初始化</button>
+
+            <div class="modal fade" id="init" tabindex="-1" aria-labelledby="initLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="initLabel">提示</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    确定要初始化仿真实验吗？
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="init()">确定</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">分配</span>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <input type="number" class="form-control" id="size" placeholder="请输入申请内存大小">
+            </div>
+            <button type="button" class="btn btn-primary" onclick="allocate()">申请内存</button>
+            <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3">
+              <div id="allocateLiveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header">
+                  <strong class="me-auto">申请结果</strong>
+                  <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body" id="allocate-result">
+                  申请成功
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-top: 30px;">
+          <div class="card-header">
+            <span class="card-title">回收</span>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <input type="number" class="form-control" id="pid" placeholder="请输入进程 Pid">
+            </div>
+            <button type="button" class="btn btn-primary" onclick="free()">释放内存</button>
+            <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3">
+              <div id="freeLiveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header">
+                  <strong class="me-auto">释放结果</strong>
+                  <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body" id="free-result">
+                  释放成功
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="navbar navbar-dark bg-light" style="position: absolute; bottom: 0;width: 100%;">
+    <div class="container">
+      <h1 style="line-height: 40px; font-size: 12px;margin: 0;">©2022</h1>
+    </div>
+  </nav>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.0/dist/echarts.min.js"></script>
+  <script src="./algorithm.js"></script>
+  <script src="./frame.js"></script>
+</body>
+
+</html>
