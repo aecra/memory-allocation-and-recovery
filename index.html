@@ -18,6 +18,12 @@
       height: 60px;
       line-height: 60px;
     }
+    .distribution {
+      height: 250px;
+      margin-left: -150px;
+      width: calc(100% + 300px);
+      border-radius: 5px;
+    }
     .indicator-container {
       display: flex;
       justify-content: space-evenly;
@@ -47,9 +53,7 @@
 
   <div class="container" style="padding-top: 30px;padding-bottom: 80px;">
     <div>
-      <p>当前内存分配状态</p>
-      <!-- 可视化展示内存状态 -->
-      <div id="distribution-stats-container"></div>
+      <div id="distribution-stats-container" class="distribution"></div>
       <div class="indicator-container" style="margin-top: 30px;">
           <div id="internal-memory-fragmentation-container" class="indicator"></div>
           <div id="external-memory-fragmentation-container" class="indicator"></div>
@@ -182,6 +186,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.0/dist/echarts.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/zrender@5.4.0/dist/zrender.min.js"></script>
   <script src="./algorithm.js"></script>
   <script src="./frame.js"></script>
 </body>

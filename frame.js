@@ -1,11 +1,10 @@
 let algorithm;
 let indicators = {};
+let distribution = { filledColors: ['#F5F5F5'] };
 
 function init() {
   let algorithm_type = document.getElementById('algorithm').value;
   let ramSize = parseInt(document.getElementById('ramSize').value);
-  resetProcessTable();
-  resetRander(ramSize);
   switch (algorithm_type) {
     case '1':
       algorithm = new FirstFit(ramSize);
@@ -37,6 +36,9 @@ function init() {
     default:
       break;
   }
+  resetProcessTable();
+  randerDistributionStats();
+  resetRander(ramSize);
 }
 
 function allocate() {
@@ -51,6 +53,12 @@ function allocate() {
       // we need to update the distribution stats and the process table
       updateProcessTable();
       updateRander();
+      distribution['filledColors'].push(
+        `rgb(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(
+          Math.random() * 256
+        )})`
+      );
+      randerDistributionStats();
     }
   }
   const coast = new bootstrap.Toast(document.getElementById('allocateLiveToast'));
@@ -69,6 +77,7 @@ function free() {
       // we need to update the distribution stats and the process table
       updateProcessTable();
       updateRander();
+      randerDistributionStats();
     }
   }
   const coast = new bootstrap.Toast(document.getElementById('freeLiveToast'));
@@ -81,7 +90,7 @@ function updateRander() {
   const emf = algorithm.getExternalMemoryFragmentation();
   const mu = algorithm.getMemoryUsage();
   indicators['internal'](imf.allocated, imf.allocated - imf.requested);
-  indicators['external'](emf.total, emf.total-emf.allocated);
+  indicators['external'](emf.total, emf.total - emf.allocated);
   indicators['memory-usage'](mu.total, mu.requested);
 }
 
@@ -112,31 +121,31 @@ function resetProcessTable() {
 }
 
 function randerIndicator(domId, title, maxValue, value) {
-  var dom = document.getElementById(domId);
-  var myChart = echarts.init(dom, null, {
+  let dom = document.getElementById(domId);
+  let myChart = echarts.init(dom, null, {
     renderer: 'canvas',
     useDirtyRect: false,
   });
-  var app = {};
-  var ROOT_PATH = 'https://echarts.apache.org/examples';
-  var option;
+  let app = {};
+  let ROOT_PATH = 'https://echarts.apache.org/examples';
+  let option;
 
-  var _panelImageURL = ROOT_PATH + '/data/asset/img/custom-gauge-panel.png';
-  var _animationDuration = 1400;
-  var _animationDurationUpdate = 1400;
-  var _animationEasingUpdate = 'quarticInOut';
-  var _valOnRadianMax = maxValue;
-  var _outerRadius = 80;
-  var _innerRadius = 60;
-  var _pointerInnerRadius = 5;
-  var _insidePanelRadius = 45;
-  var _title = title;
-  var _currentDataIndex = 0;
+  let _panelImageURL = ROOT_PATH + '/data/asset/img/custom-gauge-panel.png';
+  let _animationDuration = 1400;
+  let _animationDurationUpdate = 1400;
+  let _animationEasingUpdate = 'quarticInOut';
+  let _valOnRadianMax = maxValue;
+  let _outerRadius = 80;
+  let _innerRadius = 60;
+  let _pointerInnerRadius = 5;
+  let _insidePanelRadius = 45;
+  let _title = title;
+  let _currentDataIndex = 0;
   function renderItem(params, api) {
-    var valOnRadian = api.value(1);
-    var coords = api.coord([api.value(0), valOnRadian]);
-    var polarEndRadian = coords[3];
-    var imageStyle = {
+    let valOnRadian = api.value(1);
+    let coords = api.coord([api.value(0), valOnRadian]);
+    let polarEndRadian = coords[3];
+    let imageStyle = {
       image: _panelImageURL,
       x: params.coordSys.cx - _outerRadius,
       y: params.coordSys.cy - _outerRadius,
@@ -270,7 +279,7 @@ function randerIndicator(domId, title, maxValue, value) {
     tooltip: {
       formatter: function (params) {
         res = title + ' ' + params.value[1] + '%' + '<br/>';
-        res += '使用情况' + value + '/' + maxValue;
+        res += '详细信息' + value + '/' + maxValue;
         return res;
       },
     },
@@ -294,20 +303,10 @@ function randerIndicator(domId, title, maxValue, value) {
       },
     ],
   };
-  // setInterval(function () {
-  //   var nextSource = [[1, Math.round(Math.random() * _valOnRadianMax)]];
-  //   myChart.setOption({
-  //     dataset: {
-  //       source: nextSource
-  //     }
-  //   });
-  // }, 3000);
 
   if (option && typeof option === 'object') {
     myChart.setOption(option);
   }
-
-  // window.addEventListener('resize', myChart.resize);
 
   return function (newMaxValue, newValue) {
     maxValue = newMaxValue;
@@ -318,7 +317,124 @@ function randerIndicator(domId, title, maxValue, value) {
 }
 
 function randerDistributionStats() {
-  console.log('假装渲染了分配统计');
+  let distributionStats = algorithm.getDistributionStats();
+  let ramSize = distributionStats[distributionStats.length - 1].end;
+  let tips = {};
+  let memoryRenderDom = document.getElementById('distribution-stats-container');
+  let zr = zrender.init(memoryRenderDom);
+  // 图表下方居中显示标题 “内存分配详情”
+  let title = new zrender.Text({
+    style: {
+      text: '内存分配详情',
+      x: 0,
+      y: 0,
+      fill: '#000',
+      textFont: '16px Microsoft YaHei',
+      textAlign: 'center',
+      textVerticalAlign: 'middle',
+    },
+    position: [memoryRenderDom.clientWidth / 2 - 50, memoryRenderDom.clientHeight - 20],
+  });
+  zr.add(title);
+  //取消默认的浏览器自带右键5
+  memoryRenderDom.oncontextmenu = (e) => e.preventDefault();
+  const memoryRenderWidth = zr.getWidth() - 300;
+  distributionStats.forEach((item) => {
+    let rect = new zrender.Rect({
+      shape: {
+        x: (item.start / ramSize) * memoryRenderWidth + 150,
+        y: 50,
+        width: ((item.end - item.start) / ramSize) * memoryRenderWidth,
+        height: 150,
+        r: 5,
+      },
+      style: {
+        fill: distribution['filledColors'][item.pid === null ? 0 : item.pid],
+      },
+    });
+    rect.on('mouseover', function (event) {
+      // 高度增加 20px, 宽度等比例放大
+      {
+        let width = rect.shape.width;
+        let height = rect.shape.height;
+        let x = rect.shape.x;
+        let y = rect.shape.y;
+        !rect.enlarged &&
+          rect.attr({
+            shape: {
+              x: x - ((width * (height + 20)) / height - width) / 2,
+              y: y - 10,
+              width: (width * (height + 20)) / height,
+              height: height + 20,
+            },
+            z: 1,
+          });
+        rect.enlarged = true;
+      }
+      // 显示提示信息
+      {
+        let tip = new zrender.Text({
+          style: {
+            text: `进程 ${item.pid} 占用 ${item.end - item.start}`,
+            x: event.offsetX + 20,
+            y: event.offsetY + 20,
+          },
+          zlevel: 1,
+        });
+        tips[item.pid] = tip;
+        zr.add(tip);
+      }
+    });
+    rect.on('mouseout', function (event) {
+      // 高度减少 20px, 宽度等比例缩小
+      {
+        let width = rect.shape.width;
+        let height = rect.shape.height;
+        let x = rect.shape.x;
+        let y = rect.shape.y;
+        rect.enlarged &&
+          rect.attr({
+            shape: {
+              x: x + (width - (width * (height - 20)) / height) / 2,
+              y: y + 10,
+              width: (width * (height - 20)) / height,
+              height: height - 20,
+            },
+            z: 0,
+          });
+        rect.enlarged = false;
+      }
+      // 隐藏提示信息
+      {
+        tips[item.pid] && zr.remove(tips[item.pid]);
+        tips[item.pid] = null;
+      }
+    });
+    rect.on('mousemove', function (event) {
+      // 移动提示信息
+      tips[item.pid] && tips[item.pid].attr('style', { x: event.offsetX + 20, y: event.offsetY + 20 });
+    });
+    // 为已分配的内存添加右键释放功能
+    item.pid &&
+      rect.on(
+        'contextmenu',
+        function () {
+          if (!algorithm.free(item.pid)) {
+            document.getElementById('free-result').innerHTML = '释放内存失败';
+          } else {
+            document.getElementById('free-result').innerHTML = '释放内存成功';
+            // we need to update the distribution stats and the process table
+            updateProcessTable();
+            updateRander();
+            randerDistributionStats();
+          }
+        },
+        true
+      );
+    zr.add(rect);
+  });
+
+  window.addEventListener('resize', randerDistributionStats);
 }
 
 init();
