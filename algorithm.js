@@ -19,7 +19,7 @@ class FirstFit {
     if (size <= 0) {
       return false;
     }
-    const block = this.ramUnused.find((block) => block.end - block.start >= size);
+    const block = this.ramUnused.sort((a, b) => a.start - b.start).find((block) => block.end - block.start >= size);
     if (block) {
       const index = this.ramUnused.indexOf(block);
       if (block.end - block.start > size) {
