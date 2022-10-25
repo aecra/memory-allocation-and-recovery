@@ -141,7 +141,7 @@ class WorstFit {
     this.ramUnused = [{ start: 0, end: ramSize }];
     this.ramUsed = [];
     this.processes = [];
-    console.log('First Fit algorithm initialized');
+    console.log('Worst Fit algorithm initialized');
   }
 
   /**
