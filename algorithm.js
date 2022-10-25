@@ -448,8 +448,6 @@ class Paging {
       return false;
     }
     const pageNum = parseInt(size / this.pageSize) + ((size % this.pageSize) != 0);
-    console.log((size % this.pageSize) == 1)
-    console.log(pageNum)
     if (pageNum < this.sparePageCount) {
       this.requested += size;
       let n = pageNum;
