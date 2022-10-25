@@ -19,7 +19,9 @@ class FirstFit {
     if (size <= 0) {
       return false;
     }
-    const block = this.ramUnused.sort((a, b) => a.start - b.start).find((block) => block.end - block.start >= size);
+    const block = this.ramUnused
+      .sort((a, b) => a.start - b.start)
+      .find((block) => block.end - block.start >= size);
     if (block) {
       const index = this.ramUnused.indexOf(block);
       if (block.end - block.start > size) {
@@ -29,7 +31,11 @@ class FirstFit {
       }
       // pid = max pid + 1 and should not depend this.processes is sorted,
       // use reduce to find max pid
-      const pid = this.processes.reduce((max, process) => (process.pid > max ? process.pid : max), 0) + 1;
+      const pid =
+        this.processes.reduce(
+          (max, process) => (process.pid > max ? process.pid : max),
+          0
+        ) + 1;
       this.ramUsed.push({ start: block.start, end: block.start + size, pid });
       this.processes.push({ pid, size });
       return true;
@@ -107,7 +113,10 @@ class FirstFit {
    * { requested: 95, allocated: 100 }
    */
   getInternalMemoryFragmentation() {
-    const used = this.ramUsed.reduce((sum, block) => sum + block.end - block.start, 0);
+    const used = this.ramUsed.reduce(
+      (sum, block) => sum + block.end - block.start,
+      0
+    );
     return { requested: used, allocated: used };
   }
 
@@ -118,7 +127,10 @@ class FirstFit {
    * { allocated: 55, total: 100 }
    */
   getExternalMemoryFragmentation() {
-    const used = this.ramUsed.reduce((sum, block) => sum + block.end - block.start, 0);
+    const used = this.ramUsed.reduce(
+      (sum, block) => sum + block.end - block.start,
+      0
+    );
     return { allocated: used, total: this.ramSize };
   }
 
@@ -129,7 +141,10 @@ class FirstFit {
    * { requested: 100, total: 100 }
    */
   getMemoryUsage() {
-    const used = this.ramUsed.reduce((sum, block) => sum + block.end - block.start, 0);
+    const used = this.ramUsed.reduce(
+      (sum, block) => sum + block.end - block.start,
+      0
+    );
     return { requested: used, total: this.ramSize };
   }
 }
@@ -141,7 +156,7 @@ class BestFit {
     this.ramUnused = [{ start: 0, end: ramSize }];
     this.ramUsed = [];
     this.processes = [];
-    console.log("Best Fit algorithm initialized");
+    console.log('Best Fit algorithm initialized');
   }
 
   /**
@@ -320,7 +335,11 @@ class WorstFit {
       }
       // pid = max pid + 1 and should not depend this.processes is sorted,
       // use reduce to find max pid
-      const pid = this.processes.reduce((max, process) => (process.pid > max ? process.pid : max), 0) + 1;
+      const pid =
+        this.processes.reduce(
+          (max, process) => (process.pid > max ? process.pid : max),
+          0
+        ) + 1;
       this.ramUsed.push({ start: block.start, end: block.start + size, pid });
       this.processes.push({ pid, size });
       return true;
@@ -398,7 +417,10 @@ class WorstFit {
    * { requested: 95, allocated: 100 }
    */
   getInternalMemoryFragmentation() {
-    const used = this.ramUsed.reduce((sum, block) => sum + block.end - block.start, 0);
+    const used = this.ramUsed.reduce(
+      (sum, block) => sum + block.end - block.start,
+      0
+    );
     return { requested: used, allocated: used };
   }
 
@@ -409,7 +431,10 @@ class WorstFit {
    * { allocated: 55, total: 100 }
    */
   getExternalMemoryFragmentation() {
-    const used = this.ramUsed.reduce((sum, block) => sum + block.end - block.start, 0);
+    const used = this.ramUsed.reduce(
+      (sum, block) => sum + block.end - block.start,
+      0
+    );
     return { allocated: used, total: this.ramSize };
   }
 
@@ -420,7 +445,10 @@ class WorstFit {
    * { requested: 100, total: 100 }
    */
   getMemoryUsage() {
-    const used = this.ramUsed.reduce((sum, block) => sum + block.end - block.start, 0);
+    const used = this.ramUsed.reduce(
+      (sum, block) => sum + block.end - block.start,
+      0
+    );
     return { requested: used, total: this.ramSize };
   }
 }
@@ -429,8 +457,16 @@ class TwoLevelSegregatedFit {
   constructor(ramSize) {
     ramSize = parseInt(ramSize);
     this.firstLevel = [];
-    for (let i = 4, grandTotal = 0; grandTotal + Math.pow(2, i) < ramSize; grandTotal += Math.pow(2, i), i++) {
-      let secondLevel = { full: false, partSize: Math.pow(2, i) / 4, blocks: [] };
+    for (
+      let i = 4, grandTotal = 0;
+      grandTotal + Math.pow(2, i) < ramSize;
+      grandTotal += Math.pow(2, i), i++
+    ) {
+      let secondLevel = {
+        full: false,
+        partSize: Math.pow(2, i) / 4,
+        blocks: [],
+      };
       for (let j = 0; j < 4; j++) {
         secondLevel.blocks.push({
           start: grandTotal + (j * Math.pow(2, i)) / 4,
@@ -442,7 +478,12 @@ class TwoLevelSegregatedFit {
       this.firstLevel.push(secondLevel);
     }
     this.pid = 0;
-    this.wastedRam = ramSize - this.firstLevel.reduce((sum, secondLevel) => sum + secondLevel.partSize * 4, 0);
+    this.wastedRam =
+      ramSize -
+      this.firstLevel.reduce(
+        (sum, secondLevel) => sum + secondLevel.partSize * 4,
+        0
+      );
     console.log('Two Level Segregated Fit initialized');
   }
 
@@ -453,7 +494,9 @@ class TwoLevelSegregatedFit {
    */
   allocate(size) {
     size = parseInt(size);
-    let secondLevel = this.firstLevel.find((secondLevel) => secondLevel.partSize >= size && !secondLevel.full);
+    let secondLevel = this.firstLevel.find(
+      (secondLevel) => secondLevel.partSize >= size && !secondLevel.full
+    );
     if (secondLevel) {
       let block = secondLevel.blocks.find((block) => block.pid === null);
       block.requested = size;
@@ -474,7 +517,9 @@ class TwoLevelSegregatedFit {
    */
   free(pid) {
     pid = parseInt(pid);
-    let secondLevel = this.firstLevel.find((secondLevel) => secondLevel.blocks.some((block) => block.pid === pid));
+    let secondLevel = this.firstLevel.find((secondLevel) =>
+      secondLevel.blocks.some((block) => block.pid === pid)
+    );
     if (secondLevel) {
       let block = secondLevel.blocks.find((block) => block.pid === pid);
       block.requested = 0;
@@ -519,7 +564,11 @@ class TwoLevelSegregatedFit {
     let distribution = [];
     this.firstLevel.forEach((secondLevel) => {
       secondLevel.blocks.forEach((block) => {
-        distribution.push({ start: block.start, end: block.end, pid: block.pid });
+        distribution.push({
+          start: block.start,
+          end: block.end,
+          pid: block.pid,
+        });
       });
     });
     // add wasted ram
@@ -558,7 +607,10 @@ class TwoLevelSegregatedFit {
    * { allocated: 55, total: 100 }
    */
   getExternalMemoryFragmentation() {
-    let total = this.firstLevel.reduce((sum, secondLevel) => sum + secondLevel.partSize * 4, 0);
+    let total = this.firstLevel.reduce(
+      (sum, secondLevel) => sum + secondLevel.partSize * 4,
+      0
+    );
     return { allocated: total, total: total + this.wastedRam };
   }
 
@@ -579,7 +631,11 @@ class TwoLevelSegregatedFit {
     });
     return {
       requested,
-      total: this.firstLevel.reduce((sum, secondLevel) => sum + secondLevel.partSize * 4, 0) + this.wastedRam,
+      total:
+        this.firstLevel.reduce(
+          (sum, secondLevel) => sum + secondLevel.partSize * 4,
+          0
+        ) + this.wastedRam,
     };
   }
 }
@@ -587,7 +643,7 @@ class TwoLevelSegregatedFit {
 class Paging {
   constructor(ramSize) {
     this.pageSize = 4;
-    ramSize = parseInt((parseInt(ramSize) / this.pageSize)) * this.pageSize;
+    ramSize = parseInt(parseInt(ramSize) / this.pageSize) * this.pageSize;
     this.ramSize = ramSize;
     this.pageCount = parseInt(ramSize / this.pageSize);
     this.sparePageCount = this.pageCount;
@@ -595,7 +651,7 @@ class Paging {
     this.pageTable.fill(0);
     this.requested = 0;
     this.processes = [];
-    console.log("Paging algorithm initialized");
+    console.log('Paging algorithm initialized');
   }
 
   /**
@@ -609,7 +665,8 @@ class Paging {
     if (size <= 0) {
       return false;
     }
-    const pageNum = parseInt(size / this.pageSize) + ((size % this.pageSize) != 0);
+    const pageNum =
+      parseInt(size / this.pageSize) + (size % this.pageSize != 0);
     if (pageNum < this.sparePageCount) {
       this.requested += size;
       let n = pageNum;
@@ -687,7 +744,9 @@ class Paging {
     );
     this.processes.forEach((process) => {
       const pid = process.pid;
-      process.pages.forEach((page) => {distribution[page].pid = pid});
+      process.pages.forEach((page) => {
+        distribution[page].pid = pid;
+      });
     });
     //console.log(distribution);
     return distribution;

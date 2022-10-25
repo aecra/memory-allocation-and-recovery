@@ -54,14 +54,16 @@ function allocate() {
       updateProcessTable();
       updateRander();
       distribution['filledColors'].push(
-        `rgb(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(
+        `rgb(${Math.floor(Math.random() * 256)}, ${Math.floor(
           Math.random() * 256
-        )})`
+        )}, ${Math.floor(Math.random() * 256)})`
       );
       randerDistributionStats();
     }
   }
-  const coast = new bootstrap.Toast(document.getElementById('allocateLiveToast'));
+  const coast = new bootstrap.Toast(
+    document.getElementById('allocateLiveToast')
+  );
   coast.show();
 }
 
@@ -95,9 +97,24 @@ function updateRander() {
 }
 
 function resetRander(ramSize) {
-  indicators['internal'] = randerIndicator('internal-memory-fragmentation-container', '内部碎片率', ramSize, 0);
-  indicators['external'] = randerIndicator('external-memory-fragmentation-container', '外部碎片率', ramSize, ramSize);
-  indicators['memory-usage'] = randerIndicator('memory-usage-container', '总和内存使用率', ramSize, 0);
+  indicators['internal'] = randerIndicator(
+    'internal-memory-fragmentation-container',
+    '内部碎片率',
+    ramSize,
+    0
+  );
+  indicators['external'] = randerIndicator(
+    'external-memory-fragmentation-container',
+    '外部碎片率',
+    ramSize,
+    ramSize
+  );
+  indicators['memory-usage'] = randerIndicator(
+    'memory-usage-container',
+    '总和内存使用率',
+    ramSize,
+    0
+  );
 }
 
 function updateProcessTable() {
@@ -186,7 +203,10 @@ function randerIndicator(domId, title, maxValue, value) {
               enterFrom: { polarEndRadian: 0 },
             },
             during: function (apiDuring) {
-              apiDuring.setShape('points', makePionterPoints(params, apiDuring.getExtra('polarEndRadian')));
+              apiDuring.setShape(
+                'points',
+                makePionterPoints(params, apiDuring.getExtra('polarEndRadian'))
+              );
             },
           },
         },
@@ -224,7 +244,10 @@ function randerIndicator(domId, title, maxValue, value) {
             enterFrom: { opacity: 0 },
           },
           during: function (apiDuring) {
-            apiDuring.setStyle('text', makeText(apiDuring.getExtra('valOnRadian')));
+            apiDuring.setStyle(
+              'text',
+              makeText(apiDuring.getExtra('valOnRadian'))
+            );
           },
         },
         {
@@ -257,8 +280,16 @@ function randerIndicator(domId, title, maxValue, value) {
   function makePionterPoints(renderItemParams, polarEndRadian) {
     return [
       convertToPolarPoint(renderItemParams, _outerRadius, polarEndRadian),
-      convertToPolarPoint(renderItemParams, _outerRadius, polarEndRadian + Math.PI * 0.03),
-      convertToPolarPoint(renderItemParams, _pointerInnerRadius, polarEndRadian),
+      convertToPolarPoint(
+        renderItemParams,
+        _outerRadius,
+        polarEndRadian + Math.PI * 0.03
+      ),
+      convertToPolarPoint(
+        renderItemParams,
+        _pointerInnerRadius,
+        polarEndRadian
+      ),
     ];
   }
   function makeText(valOnRadian) {
@@ -278,7 +309,12 @@ function randerIndicator(domId, title, maxValue, value) {
     },
     tooltip: {
       formatter: function (params) {
-        res = title + ' ' + ((params.value[1] / maxValue) * 100).toFixed(1) + '%' + '<br/>';
+        res =
+          title +
+          ' ' +
+          ((params.value[1] / maxValue) * 100).toFixed(1) +
+          '%' +
+          '<br/>';
         res += '详细信息' + params.value[1] + '/' + maxValue;
         return res;
       },
@@ -333,7 +369,10 @@ function randerDistributionStats() {
       textAlign: 'center',
       textVerticalAlign: 'middle',
     },
-    position: [memoryRenderDom.clientWidth / 2 - 50, memoryRenderDom.clientHeight - 20],
+    position: [
+      memoryRenderDom.clientWidth / 2 - 50,
+      memoryRenderDom.clientHeight - 20,
+    ],
   });
   zr.add(title);
   //取消默认的浏览器自带右键5
@@ -412,7 +451,11 @@ function randerDistributionStats() {
     });
     rect.on('mousemove', function (event) {
       // 移动提示信息
-      tips[item.pid] && tips[item.pid].attr('style', { x: event.offsetX + 20, y: event.offsetY + 20 });
+      tips[item.pid] &&
+        tips[item.pid].attr('style', {
+          x: event.offsetX + 20,
+          y: event.offsetY + 20,
+        });
     });
     // 为已分配的内存添加右键释放功能
     item.pid &&
