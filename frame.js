@@ -278,8 +278,8 @@ function randerIndicator(domId, title, maxValue, value) {
     },
     tooltip: {
       formatter: function (params) {
-        res = title + ' ' + params.value[1] + '%' + '<br/>';
-        res += '详细信息' + value + '/' + maxValue;
+        res = title + ' ' + ((params.value[1] / maxValue) * 100).toFixed(1) + '%' + '<br/>';
+        res += '详细信息' + params.value[1] + '/' + maxValue;
         return res;
       },
     },
