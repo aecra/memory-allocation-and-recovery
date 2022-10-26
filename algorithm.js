@@ -5,7 +5,7 @@ class FirstFit {
     this.ramUnused = [{ start: 0, end: ramSize }];
     this.ramUsed = [];
     this.processes = [];
-    console.log('First Fit algorithm initialized');
+    console.log("First Fit algorithm initialized");
   }
 
   /**
@@ -156,7 +156,7 @@ class BestFit {
     this.ramUnused = [{ start: 0, end: ramSize }];
     this.ramUsed = [];
     this.processes = [];
-    console.log('Best Fit algorithm initialized');
+    console.log("Best Fit algorithm initialized");
   }
 
   /**
@@ -203,6 +203,7 @@ class BestFit {
    * @returns {boolean} true if process was freed, false otherwise
    */
   free(pid) {
+    pid = parseInt(pid);
     const process = this.processes.find((process) => process.pid === pid);
     if (process) {
       const index = this.processes.indexOf(process);
@@ -309,7 +310,7 @@ class WorstFit {
     this.ramUnused = [{ start: 0, end: ramSize }];
     this.ramUsed = [];
     this.processes = [];
-    console.log('Worst Fit algorithm initialized');
+    console.log("Worst Fit algorithm initialized");
   }
 
   /**
@@ -484,7 +485,7 @@ class TwoLevelSegregatedFit {
         (sum, secondLevel) => sum + secondLevel.partSize * 4,
         0
       );
-    console.log('Two Level Segregated Fit initialized');
+    console.log("Two Level Segregated Fit initialized");
   }
 
   /**
@@ -643,15 +644,15 @@ class TwoLevelSegregatedFit {
 class Paging {
   constructor(ramSize) {
     this.pageSize = 4;
-    ramSize = parseInt(parseInt(ramSize) / this.pageSize) * this.pageSize;
-    this.ramSize = ramSize;
-    this.pageCount = parseInt(ramSize / this.pageSize);
+    this.ramSize = parseInt(parseInt(ramSize) / this.pageSize) * this.pageSize;
+    this.wastedRam = parseInt(ramSize) - this.ramSize;
+    this.pageCount = parseInt(this.ramSize / this.pageSize);
     this.sparePageCount = this.pageCount;
     this.pageTable = new Array(this.pageCount);
     this.pageTable.fill(0);
     this.requested = 0;
     this.processes = [];
-    console.log('Paging algorithm initialized');
+    console.log("Paging algorithm initialized");
   }
 
   /**
@@ -773,8 +774,8 @@ class Paging {
    */
   getExternalMemoryFragmentation() {
     return {
-      allocated: (this.pageCount - this.sparePageCount) * this.pageSize,
-      total: this.ramSize,
+      allocated: this.wastedRam,
+      total: this.ramSize + this.wastedRam,
     };
   }
 
@@ -786,5 +787,195 @@ class Paging {
    */
   getMemoryUsage() {
     return { requested: this.requested, total: this.ramSize };
+  }
+}
+
+class BuddySystem {
+  constructor(ramSize) {
+    ramSize = parseInt(ramSize);
+    let i = 0;
+    while (1 << (i + 1) <= ramSize) i++;
+    this.ramSize = ramSize;
+    this.aeraNum = i + 1;
+    this.ramUnused = new Array(this.aeraNum);
+    let pre = 0;
+    for (i = 0; i < this.aeraNum; i++) {
+      this.ramUnused[i] = new Array();
+      if ((1 << i) & ramSize) {
+        this.ramUnused[i].push({ start: pre, end: pre + (1 << i) });
+        pre += 1 << i;
+      }
+    }
+    this.ramUsed = [];
+    this.processes = [];
+    console.log("BuddySystem algorithm initialized");
+  }
+
+  allocateMem(k, h) {
+    if (h >= this.aeraNum) return null;
+
+    if (this.ramUnused[h].length > 0) {
+      const block = this.ramUnused[h][0];
+      this.ramUnused[h].splice(0, 1);
+      return block;
+    } else {
+      const block = this.allocateMem(k, h + 1);
+      if (block === null) return null;
+      const mid = parseInt((block.start + block.end) / 2);
+      this.ramUnused[h].push({ start: mid, end: block.end });
+      return { start: block.start, end: mid };
+    }
+  }
+
+  freeMem(block, h) {
+    const buddyBlock = this.ramUnused[h].find(
+      (b) =>
+        b.end - b.start === block.end - block.start &&
+        (b.start === block.end || b.end === block.start)
+    );
+    if (buddyBlock) {
+      const start = Math.min(block.start, buddyBlock.start);
+      const end = Math.max(block.end, buddyBlock.end);
+      const index = this.ramUnused[h].indexOf(buddyBlock);
+      this.ramUnused[h].splice(index, 1);
+      this.freeMem({ start, end }, h + 1);
+    } else {
+      this.ramUnused[h].push(block);
+    }
+  }
+
+  /**
+   * 分配内存
+   * @param {number} pid
+   * @returns {boolean} true if process was allocated, false otherwise
+   */
+  allocate(size) {
+    // if size is string, string to number
+    size = parseInt(size);
+    if (size <= 0) {
+      return false;
+    }
+    let k = 0;
+    while (1 << k < size) k++;
+    const block = this.allocateMem(k, k);
+    if (block) {
+      const pid =
+        this.processes.reduce(
+          (max, process) => (process.pid > max ? process.pid : max),
+          0
+        ) + 1;
+      this.ramUsed.push({ ...block, pid, requested: size });
+      this.processes.push({ pid, size: block.end - block.start });
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * 释放内存
+   * @param {number} pid
+   * @returns {boolean} true if process was freed, false otherwise
+   */
+  free(pid) {
+    pid = parseInt(pid);
+    const process = this.processes.find((process) => process.pid === pid);
+    if (process) {
+      let index = this.processes.indexOf(process);
+      this.processes.splice(index, 1);
+      // if only once allocate
+      const block = this.ramUsed.find((block) => block.pid === pid);
+      let h = 0;
+      while (1 << h < block.end - block.start) h++;
+      this.freeMem({ start: block.start, end: block.end }, h);
+      index = this.ramUsed.indexOf(block);
+      this.ramUsed.splice(index, 1);
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * 获取进程表
+   * @returns {Array} 进程表
+   * @example [{ pid: 1, size: 100 }, { pid: 2, size: 100 }]
+   */
+  getProcesses() {
+    return this.processes;
+  }
+
+  /**
+   * 获取内存分配情况
+   * @returns {Array} 内存分配情况
+   * @example
+   * [
+   *   { start: 0, end: 100, pid: 1 },
+   *   { start: 100, end: 200, pid: 2 },
+   *   { start: 200, end: 400, pid: null }
+   * ]
+   * pid 为 null 表示该内存块未被分配，否则为分配给进程的 pid，
+   * start 和 end 为内存块的起始地址和结束地址，
+   * 该数组应该按照 start 从小到大排序。
+   */
+  getDistributionStats() {
+    const distribution = [];
+    for (let i = 0; i < this.aeraNum; i++) {
+      distribution.push(...this.ramUnused[i]);
+    }
+    distribution.push(...this.ramUsed);
+    distribution.forEach((block) => {
+      if (block.pid === undefined) {
+        block.pid = null;
+      }
+    });
+    distribution.sort((a, b) => a.start - b.start);
+    return distribution;
+  }
+
+  /**
+   *  获取内部碎片
+   * @returns {Object} 内部碎片
+   * @example
+   * { requested: 95, allocated: 100 }
+   */
+  getInternalMemoryFragmentation() {
+    const requested = this.ramUsed.reduce(
+      (req, block) => req + block.requested,
+      0
+    );
+    const allocated = this.ramUsed.reduce(
+      (all, block) => all + block.end - block.start,
+      0
+    );
+    return {
+      requested,
+      allocated,
+    };
+  }
+
+  /**
+   * 获取外部碎片
+   * @returns {Object} 外部碎片
+   * @example
+   * { allocated: 55, total: 100 }
+   */
+  getExternalMemoryFragmentation() {
+    return {
+      allocated: this.ramSize,
+      total: this.ramSize,
+    };
+  }
+
+  /**
+   * 内存使用情况
+   * @returns {Object} 内存使用情况
+   * @example
+   * { requested: 100, total: 100 }
+   */
+  getMemoryUsage() {
+    const requested = this.ramUsed.reduce(
+      (req, block) => req + block.requested,
+      0
+    );
+    return { requested, total: this.ramSize };
   }
 }
