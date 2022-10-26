@@ -430,7 +430,7 @@ class BestFit {
 class Paging {
   constructor(ramSize) {
     this.pageSize = 4;
-    ramSize = parseInt((parseInt(ramSize) / this.pageSize)) * this.pageSize;
+    ramSize = parseInt(parseInt(ramSize) / this.pageSize) * this.pageSize;
     this.ramSize = ramSize;
     this.pageCount = parseInt(ramSize / this.pageSize);
     this.sparePageCount = this.pageCount;
@@ -447,7 +447,8 @@ class Paging {
     if (size <= 0) {
       return false;
     }
-    const pageNum = parseInt(size / this.pageSize) + ((size % this.pageSize) != 0);
+    const pageNum =
+      parseInt(size / this.pageSize) + (size % this.pageSize != 0);
     if (pageNum < this.sparePageCount) {
       this.requested += size;
       let n = pageNum;
@@ -520,7 +521,9 @@ class Paging {
     );
     this.processes.forEach((process) => {
       const pid = process.pid;
-      process.pages.forEach((page) => {distribution[page].pid = pid});
+      process.pages.forEach((page) => {
+        distribution[page].pid = pid;
+      });
     });
     //console.log(distribution);
     return distribution;
