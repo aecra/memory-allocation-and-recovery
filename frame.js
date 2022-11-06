@@ -27,12 +27,6 @@ function init() {
     case '7':
       algorithm = new Paging(ramSize);
       break;
-    case '8':
-      algorithm = new Segmentation(ramSize);
-      break;
-    case '9':
-      algorithm = new SegmentationPaging(ramSize);
-      break;
     default:
       break;
   }
