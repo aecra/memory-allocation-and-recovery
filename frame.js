@@ -2,6 +2,10 @@ let algorithm;
 let indicators = {};
 let distribution = { filledColors: ['#F5F5F5'] };
 
+/**
+ * 初始化内存分配算法
+ * 通过读取 Dom 中的值来初始化对应的内存分配算法
+ */
 function init() {
   let algorithm_type = document.getElementById('algorithm').value;
   let ramSize = parseInt(document.getElementById('ramSize').value);
@@ -35,6 +39,10 @@ function init() {
   resetRander(ramSize);
 }
 
+/**
+ * 申请内存
+ * 通过读取 Dom 中的值来申请内存，同时更新内存分配算法的状态
+ */
 function allocate() {
   let size = document.getElementById('size').value;
   if (size === '') {
@@ -61,6 +69,10 @@ function allocate() {
   coast.show();
 }
 
+/**
+ * 释放内存
+ * 通过读取 Dom 中的值来释放内存，同时更新内存分配算法的状态
+ */
 function free() {
   let pid = document.getElementById('pid').value;
   if (pid === '') {
@@ -80,6 +92,9 @@ function free() {
   coast.show();
 }
 
+/**
+ * 更新内存分配算法的内存使用指标
+ */
 function updateRander() {
   // update the distribution stats
   const imf = algorithm.getInternalMemoryFragmentation();
@@ -90,6 +105,10 @@ function updateRander() {
   indicators['memory-usage'](mu.total, mu.requested);
 }
 
+/**
+ * 重置内存分配算法的内存使用指标同时重绘指标图
+ * @param {number} ramSize 内存大小
+ */
 function resetRander(ramSize) {
   indicators['internal'] = randerIndicator(
     'internal-memory-fragmentation-container',
@@ -111,6 +130,9 @@ function resetRander(ramSize) {
   );
 }
 
+/**
+ * 更新进程表 UI
+ */
 function updateProcessTable() {
   // update the process table
   let processes = algorithm.getProcesses();
@@ -126,11 +148,21 @@ function updateProcessTable() {
   }
 }
 
+/**
+ * 重置进程表 UI
+ */
 function resetProcessTable() {
   let table = document.getElementById('process-table');
   table.innerHTML = '';
 }
 
+/**
+ * 重绘内存分配算法的内存使用指标
+ * @param {string} containerId 指标图所在的容器 id
+ * @param {string} title 指标图的标题
+ * @param {number} total 指标图的总值
+ * @param {number} allocated 指标图的已分配值
+ */
 function randerIndicator(domId, title, maxValue, value) {
   let dom = document.getElementById(domId);
   let myChart = echarts.init(dom, null, {
@@ -346,6 +378,9 @@ function randerIndicator(domId, title, maxValue, value) {
   };
 }
 
+/**
+ * 重绘制内存分配算法分配详情图
+ */
 function randerDistributionStats() {
   let distributionStats = algorithm.getDistributionStats();
   let ramSize = distributionStats[distributionStats.length - 1].end;
