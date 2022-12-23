@@ -8,16 +8,17 @@
   <title>内存分配回收算法仿真实验</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+  <link href="./css1.css" rel="stylesheet" crossorigin="anonymous">
   <style>
     body {
       min-height: 100vh;
       position: relative;
+      background-color: #F7F7F8;
     }
 
-    .head {
-      background-color: aquamarine;
-      height: 60px;
-      line-height: 60px;
+    .navbar {
+      background-color: #262F3E;
+      color: #f5f5f5;
     }
 
     .distribution {
@@ -30,7 +31,7 @@
     .indicator-container {
       display: flex;
       justify-content: space-evenly;
-      background-color: #f5f5f5;
+      background-color: #ffffff;
       border-radius: 5px;
     }
 
@@ -40,8 +41,27 @@
       position: relative;
     }
 
+    .card {
+      border-radius: 0;
+      border: none;
+    }
+
+    .card-header {
+      background-color: #262F3E;
+      color: #f5f5f5;
+      border-radius: 0!important;
+    }
+
+    .btn {
+      border-radius: 0;
+    }
+
+    .toast {
+      border-radius: 0;
+    }
+
     #process {
-      height: 420px;
+      min-height: 420px;
       overflow: scroll;
       overflow-x: hidden;
     }
@@ -50,9 +70,9 @@
 </head>
 
 <body>
-  <nav class="navbar navbar-dark bg-light">
+  <nav class="navbar">
     <div class="container">
-      <h1 style="line-height: 40px; font-size: 23px;margin: 0;">内存分配回收算法仿真实验</h1>
+      <h1 style="line-height: 40px; font-size: 16px;margin: 0;">内存分配回收算法仿真实验</h1>
     </div>
   </nav>
 
@@ -66,9 +86,9 @@
       </div>
     </div>
 
-    <div class="row g-3" style="margin-top: 30px;">
-      <div class="col">
-        <div class="card">
+    <div class="row g-3" style="margin-top: 30px; align-items: stretch;">
+      <div class="col-4">
+        <div class="card" style="max-height: 100%;">
           <div class="card-header">
             <span>当前进程分配状态</span>
           </div>
@@ -87,69 +107,95 @@
         </div>
       </div>
       <div class="col">
-        <div class="card">
-          <div class="card-header">
-            <span>内存和算法初始化</span>
-          </div>
-          <div class="card-body">
-            <div class="mb-3">
-              <label for="algorithm" class="form-label">选择算法</label>
-              <select class="form-select" id="algorithm">
-                <!-- <option selected>Open this select menu</option> -->
-                <option value="1">首次适应算法 First Fit</option>
-                <option value="2">最佳适应算法 Best Fit</option>
-                <option value="3">下次适应算法 Next Fit</option>
-                <option value="4">最差适应算法 Worst Fit</option>
-                <option value="5">TLSF</option>
-                <option value="6">Buddy systems</option>
-                <option value="7">分页内存分配算法</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label for="ram-size" class="form-label">初始内存大小</label>
-              <input type="number" class="form-control" id="ramSize" placeholder="请输入内存大小" value="1000">
-            </div>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#init">初始化</button>
+        <div class="row" style="align-items: stretch">
+          <div class="col-6">
+            <div class="card" style="min-height: 100%;">
+              <div class="card-header">
+                <span>内存和算法初始化</span>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label for="algorithm" class="form-label">选择算法</label>
+                  <select class="form-select" id="algorithm">
+                    <!-- <option selected>Open this select menu</option> -->
+                    <option value="1">首次适应算法 First Fit</option>
+                    <option value="2">最佳适应算法 Best Fit</option>
+                    <option value="3">下次适应算法 Next Fit</option>
+                    <option value="4">最差适应算法 Worst Fit</option>
+                    <option value="5">TLSF</option>
+                    <option value="6">Buddy systems</option>
+                    <option value="7">分页内存分配算法</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label for="ram-size" class="form-label">初始内存大小</label>
+                  <input type="number" class="form-control" id="ramSize" placeholder="请输入内存大小" value="1000">
+                </div>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#init">初始化</button>
 
-            <div class="modal fade" id="init" tabindex="-1" aria-labelledby="initLabel" aria-hidden="true">
-              <div class="modal-dialog">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="initLabel">提示</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal fade" id="init" tabindex="-1" aria-labelledby="initLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="initLabel">提示</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        确定要初始化仿真实验吗？
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="init()">确定</button>
+                      </div>
+                    </div>
                   </div>
-                  <div class="modal-body">
-                    确定要初始化仿真实验吗？
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="init()">确定</button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">分配</span>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <input type="number" class="form-control" id="size" placeholder="请输入申请内存大小">
+                </div>
+                <button type="button" class="btn btn-primary" onclick="allocate()">申请内存</button>
+                <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3">
+                  <div id="allocateLiveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                      <strong class="me-auto">申请结果</strong>
+                      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body" id="allocate-result">
+                      申请成功
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-
-        </div>
-      </div>
-      <div class="col">
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">分配</span>
-          </div>
-          <div class="card-body">
-            <div class="mb-3">
-              <input type="number" class="form-control" id="size" placeholder="请输入申请内存大小">
-            </div>
-            <button type="button" class="btn btn-primary" onclick="allocate()">申请内存</button>
-            <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3">
-              <div id="allocateLiveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-header">
-                  <strong class="me-auto">申请结果</strong>
-                  <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            <div class="card" style="margin-top: 30px;">
+              <div class="card-header">
+                <span class="card-title">回收</span>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <input type="number" class="form-control" id="pid" placeholder="请输入进程 Pid">
                 </div>
-                <div class="toast-body" id="allocate-result">
-                  申请成功
+                <button type="button" class="btn btn-primary" onclick="free()">释放内存</button>
+                <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3">
+                  <div id="freeLiveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                      <strong class="me-auto">释放结果</strong>
+                      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body" id="free-result">
+                      释放成功
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -157,31 +203,68 @@
         </div>
         <div class="card" style="margin-top: 30px;">
           <div class="card-header">
-            <span class="card-title">回收</span>
+            <span class="card-title">应用代码</span>
           </div>
           <div class="card-body">
-            <div class="mb-3">
-              <input type="number" class="form-control" id="pid" placeholder="请输入进程 Pid">
+            <p>这里展示的是上述操作执行的代码，代码以C语言为例，其他支持手动内存管理的语言请查阅对应的文档来申请和释放内存。</p>
+            <br />
+            <div>
+              <!---这里填入每次执行的代码-->
+              <pre><div class="bg-black mb-4 rounded-md"><div class="flex items-center relative text-gray-200 bg-gray-800 px-4 py-2 text-xs font-sans"><button class="flex ml-auto gap-2">C</button></div><div class="p-4 overflow-y-auto"><code class="!whitespace-pre-wrap hljs language-c" id="codeofThis"></code></div></div></pre>
             </div>
-            <button type="button" class="btn btn-primary" onclick="free()">释放内存</button>
-            <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3">
-              <div id="freeLiveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-header">
-                  <strong class="me-auto">释放结果</strong>
-                  <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-                <div class="toast-body" id="free-result">
-                  释放成功
-                </div>
-              </div>
+            <p><b>关于内存申请与释放函数的使用说明请见如下：</b></p>
+            <div class="markdown prose w-full break-words dark:prose-invert light">
+              <p>内存分配和释放是 C 语言中常见的操作，下面是一些常见的内存分配和释放的代码示例：</p>
+              <p>内存分配：</p>
+              <pre><div class="bg-black mb-4 rounded-md"><div class="flex items-center relative text-gray-200 bg-gray-800 px-4 py-2 text-xs font-sans"><button class="flex ml-auto gap-2">C</button></div><div class="p-4 overflow-y-auto"><code class="!whitespace-pre-wrap hljs language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdlib.h&gt;</span></span>
+
+<span class="hljs-comment">// 分配一个整型数组</span>
+<span class="hljs-type">int</span> *<span class="hljs-built_in">array</span> = <span class="hljs-built_in">malloc</span>(<span class="hljs-number">10</span> * <span class="hljs-keyword">sizeof</span>(<span class="hljs-type">int</span>));
+
+<span class="hljs-comment">// 分配一个字符串</span>
+<span class="hljs-type">char</span> *<span class="hljs-built_in">string</span> = <span class="hljs-built_in">malloc</span>(<span class="hljs-number">20</span> * <span class="hljs-keyword">sizeof</span>(<span class="hljs-type">char</span>));
+
+<span class="hljs-comment">// 分配一个结构体</span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">my_struct</span> *<span class="hljs-title">s</span> =</span> <span class="hljs-built_in">malloc</span>(<span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">struct</span> my_struct));
+
+<span class="hljs-comment">// 分配一个特定字节的空间</span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">my_space</span> *<span class="hljs-title">s</span> =</span> <span class="hljs-built_in">malloc</span>(<span class="hljs-number">20</span>));
+</code></div></div></pre>
+              <p>内存释放：</p>
+              <pre><div class="bg-black mb-4 rounded-md"><div class="flex items-center relative text-gray-200 bg-gray-800 px-4 py-2 text-xs font-sans"><button class="flex ml-auto gap-2">C</button></div><div class="p-4 overflow-y-auto"><code class="!whitespace-pre-wrap hljs language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdlib.h&gt;</span></span>
+
+<span class="hljs-comment">// 释放整型数组</span>
+<span class="hljs-built_in">free</span>(<span class="hljs-built_in">array</span>);
+
+<span class="hljs-comment">// 释放字符串</span>
+<span class="hljs-built_in">free</span>(<span class="hljs-built_in">string</span>);
+
+<span class="hljs-comment">// 释放结构体</span>
+<span class="hljs-built_in">free</span>(s);
+</code></div></div></pre>
+              <p>注意：在使用内存分配函数之前，应该先包含 <code>stdlib.h</code> 头文件。</p>
+              <p>释放内存时，应该使用 <code>free</code> 函数。在释放内存后，你应该将指向该内存块的指针设置为 <code>NULL</code>，以防止意外地使用该内存块。</p>
+              <p>内存分配函数有很多种，包括 <code>malloc</code>、<code>calloc</code> 和 <code>realloc</code>。你可以使用这些函数来分配不同类型的内存块，并根据需要动态地调整内存大小。</p>
+              <p><code>calloc</code> 和 <code>realloc</code> 是两个用于动态内存分配的函数，它们都是在 C 语言标准库中定义的。</p>
+              <p><code>calloc</code> 是将多个连续的内存块连续地分配给一个指针的函数。它的原型如下：</p>
+              <pre><div class="bg-black mb-4 rounded-md"><div class="flex items-center relative text-gray-200 bg-gray-800 px-4 py-2 text-xs font-sans"><button class="flex ml-auto gap-2">C</button></div><div class="p-4 overflow-y-auto"><code class="!whitespace-pre-wrap hljs language-c"><span class="hljs-type">void</span> *<span class="hljs-title function_">calloc</span><span class="hljs-params">(<span class="hljs-type">size_t</span> nmemb, <span class="hljs-type">size_t</span> size)</span>;
+              </code></div></div></pre>
+              <p>其中，<code>nmemb</code> 指定要分配的内存块的数量，<code>size</code> 指定每个内存块的大小（以字节为单位）。<code>calloc</code> 函数会返回一个指向已分配内存的指针，如果分配失败，则返回 <code>NULL</code>。</p>
+              <p>与 <code>malloc</code> 不同，<code>calloc</code> 在分配内存后会将所有内存设为零。这在初始化内存时很有用，因为它可以避免使用 <code>memset</code> 函数来手动将内存设为零。</p>
+              <p><code>realloc</code> 是将一个已分配的内存块的大小调整为更大或更小的函数。它的原型如下：</p>
+              <pre><div class="bg-black mb-4 rounded-md"><div class="flex items-center relative text-gray-200 bg-gray-800 px-4 py-2 text-xs font-sans"><button class="flex ml-auto gap-2">C</button></div><div class="p-4 overflow-y-auto"><code class="!whitespace-pre-wrap hljs language-c"><span class="hljs-type">void</span> *<span class="hljs-title function_">realloc</span><span class="hljs-params">(<span class="hljs-type">void</span> *ptr, <span class="hljs-type">size_t</span> size)</span>;
+              </code></div></div></pre>
+              <p>其中，<code>ptr</code> 是指向要调整大小的内存块的指针，<code>size</code> 指定新的内存块大小。<code>realloc</code> 函数会返回一个指向新分配的内存的指针，如果分配失败，则返回 <code>NULL</code>。</p>
+              <p>如果 <code>size</code> 比原来的内存块大，<code>realloc</code> 函数会将原来的内存复制到新分配的内存中，并释放原来的内存</p>
             </div>
           </div>
         </div>
       </div>
+
     </div>
   </div>
 
-  <nav class="navbar navbar-dark bg-light" style="position: absolute; bottom: 0;width: 100%;">
+  <nav class="navbar" style="width: 100%;">
     <div class="container">
       <h1 style="line-height: 40px; font-size: 12px;margin: 0;">©2022</h1>
     </div>

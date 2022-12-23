@@ -1,6 +1,9 @@
 let algorithm;
 let indicators = {};
-let distribution = { filledColors: ['#F5F5F5'] };
+let distribution = { filledColors: ['#ffffff'] };
+
+// TODO
+// 2. beautify the UI
 
 /**
  * 初始化内存分配算法
@@ -35,6 +38,7 @@ function init() {
       break;
   }
   resetProcessTable();
+  resetCode();
   randerDistributionStats();
   resetRander(ramSize);
 }
@@ -48,12 +52,14 @@ function allocate() {
   if (size === '') {
     document.getElementById('allocate-result').innerHTML = '请输入内存大小';
   } else {
-    if (algorithm.allocate(size) === -1) {
+    const pid = algorithm.allocate(size);
+    if (pid === -1) {
       document.getElementById('allocate-result').innerHTML = '申请内存失败';
     } else {
       document.getElementById('allocate-result').innerHTML = '申请内存成功';
       // we need to update the distribution stats and the process table
       updateProcessTable();
+      addAllocateCode(pid, size);
       updateRander();
       distribution['filledColors'].push(
         `rgb(${Math.floor(Math.random() * 256)}, ${Math.floor(
@@ -84,6 +90,7 @@ function free() {
       document.getElementById('free-result').innerHTML = '释放内存成功';
       // we need to update the distribution stats and the process table
       updateProcessTable();
+      addFreeCode(pid);
       updateRander();
       randerDistributionStats();
     }
@@ -128,6 +135,34 @@ function resetRander(ramSize) {
     ramSize,
     0
   );
+}
+
+/**
+ * 重置代码示例
+ */
+function resetCode() {
+  document.getElementById('codeofThis').innerHTML = '<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdlib.h&gt;</span></span>\n\n';
+}
+
+/**
+ * 添加申请内存的代码示例
+ * @param {number} pid 申请内存的进程号
+ * @param {number} size 申请内存的大小
+ */
+function addAllocateCode(pid, size) {
+  let code = document.getElementById('codeofThis').innerHTML;
+  code += `<span class="hljs-class"><span class="hljs-type">char</span> *<span class="hljs-title">pid${pid}</span> =</span> <span class="hljs-built_in">malloc</span>(<span class="hljs-number">${size}</span>));\n\n`;
+  document.getElementById('codeofThis').innerHTML = code;
+}
+
+/**
+ * 添加释放内存的代码示例
+ * @param {number} pid 释放内存的进程号
+ */
+function addFreeCode(pid) {
+  let code = document.getElementById('codeofThis').innerHTML;
+  code += `<span class="hljs-built_in">free</span>(pid${pid});\n\n`;
+  document.getElementById('codeofThis').innerHTML = code;
 }
 
 /**
@@ -491,12 +526,14 @@ function randerDistributionStats() {
       rect.on(
         'contextmenu',
         function () {
-          if (!algorithm.free(item.pid)) {
+          const pid = item.pid;
+          if (!algorithm.free(pid)) {
             document.getElementById('free-result').innerHTML = '释放内存失败';
           } else {
             document.getElementById('free-result').innerHTML = '释放内存成功';
             // we need to update the distribution stats and the process table
             updateProcessTable();
+            addFreeCode(pid);
             updateRander();
             randerDistributionStats();
           }
