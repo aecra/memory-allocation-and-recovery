@@ -48,7 +48,7 @@ function allocate() {
   if (size === '') {
     document.getElementById('allocate-result').innerHTML = '请输入内存大小';
   } else {
-    if (!algorithm.allocate(size)) {
+    if (algorithm.allocate(size) === -1) {
       document.getElementById('allocate-result').innerHTML = '申请内存失败';
     } else {
       document.getElementById('allocate-result').innerHTML = '申请内存成功';

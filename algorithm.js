@@ -11,13 +11,13 @@ class FirstFit {
   /**
    * 分配内存
    * @param {number} size
-   * @returns {boolean} true if process was allocated, false otherwise
+   * @returns {number} pid number if process was allocated, -1 otherwise
    */
   allocate(size) {
     // if size is string, string to number
     size = parseInt(size);
     if (size <= 0) {
-      return false;
+      return -1;
     }
     const block = this.ramUnused
       .sort((a, b) => a.start - b.start)
@@ -38,9 +38,9 @@ class FirstFit {
         ) + 1;
       this.ramUsed.push({ start: block.start, end: block.start + size, pid });
       this.processes.push({ pid, size });
-      return true;
+      return pid;
     }
-    return false;
+    return -1;
   }
 
   /**
@@ -162,13 +162,13 @@ class BestFit {
   /**
    * 分配内存
    * @param {number} size
-   * @returns {boolean} true if process was allocated, false otherwise
+   * @returns {number} pid number if process was allocated, -1 otherwise
    */
   allocate(size) {
     // if size is string, string to number
     size = parseInt(size);
     if (size <= 0) {
-      return false;
+      return -1;
     }
     const blocks = this.ramUnused.filter(
       (block) => block.end - block.start >= size
@@ -192,9 +192,9 @@ class BestFit {
         ) + 1;
       this.ramUsed.push({ start: block.start, end: block.start + size, pid });
       this.processes.push({ pid, size });
-      return true;
+      return pid;
     }
-    return false;
+    return -1;
   }
 
   /**
@@ -318,13 +318,13 @@ class NextFit {
   /**
    * 分配内存
    * @param {number} size
-   * @returns {boolean} true if process was allocated, false otherwise
+   * @returns {number} pid number if process was allocated, -1 otherwise
    */
   allocate(size) {
     // if size is string, string to number
     size = parseInt(size);
     if (size <= 0) {
-      return false;
+      return -1;
     }
     const block = this.ramUnused.find(
       (block) => block.end - block.start >= size
@@ -355,9 +355,9 @@ class NextFit {
         ) + 1;
       this.ramUsed.push({ start: block.start, end: block.start + size, pid });
       this.processes.push({ pid, size });
-      return true;
+      return pid;
     }
-    return false;
+    return -1;
   }
 
   /**
@@ -520,13 +520,13 @@ class WorstFit {
   /**
    * 分配内存
    * @param {number} size
-   * @returns {boolean} true if process was allocated, false otherwise
+   * @returns {number} pid number if process was allocated, -1 otherwise
    */
   allocate(size) {
     // if size is string, string to number
     size = parseInt(size);
     if (size <= 0) {
-      return false;
+      return -1;
     }
     const block = this.ramUnused
       .sort((a, b) => b.end - b.start - (a.end - a.start))
@@ -547,9 +547,9 @@ class WorstFit {
         ) + 1;
       this.ramUsed.push({ start: block.start, end: block.start + size, pid });
       this.processes.push({ pid, size });
-      return true;
+      return pid;
     }
-    return false;
+    return -1;
   }
 
   /**
@@ -695,7 +695,7 @@ class TwoLevelSegregatedFit {
   /**
    * 分配内存
    * @param {number} size
-   * @returns {boolean} true if process was allocated, false otherwise
+   * @returns {number} pid number if process was allocated, -1 otherwise
    */
   allocate(size) {
     size = parseInt(size);
@@ -710,9 +710,9 @@ class TwoLevelSegregatedFit {
       if (secondLevel.blocks.every((block) => block.pid !== null)) {
         secondLevel.full = true;
       }
-      return true;
+      return block.pid;
     }
-    return false;
+    return -1;
   }
 
   /**
@@ -862,13 +862,13 @@ class Paging {
   /**
    * 分配内存
    * @param {number} size
-   * @returns {boolean} true if process was allocated, false otherwise
+   * @returns {number} pid number if process was allocated, -1 otherwise
    */
   allocate(size) {
     // if size is string, string to number
     size = parseInt(size);
     if (size <= 0) {
-      return false;
+      return -1;
     }
     const pageNum =
       parseInt(size / this.pageSize) + (size % this.pageSize != 0);
@@ -896,9 +896,9 @@ class Paging {
         req: size,
         pages,
       });
-      return true;
+      return pid;
     }
-    return false;
+    return -1;
   }
 
   /**
@@ -1051,13 +1051,13 @@ class BuddySystem {
   /**
    * 分配内存
    * @param {number} size
-   * @returns {boolean} true if process was allocated, false otherwise
+   * @returns {number} pid number if process was allocated, -1 otherwise
    */
   allocate(size) {
     // if size is string, string to number
     size = parseInt(size);
     if (size <= 0) {
-      return false;
+      return -1;
     }
     let k = 0;
     while (1 << k < size) k++;
@@ -1070,9 +1070,9 @@ class BuddySystem {
         ) + 1;
       this.ramUsed.push({ ...block, pid, requested: size });
       this.processes.push({ pid, size: block.end - block.start });
-      return true;
+      return pid;
     }
-    return false;
+    return -1;
   }
 
   /**
