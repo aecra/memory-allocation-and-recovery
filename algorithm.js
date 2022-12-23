@@ -10,7 +10,7 @@ class FirstFit {
 
   /**
    * 分配内存
-   * @param {number} pid
+   * @param {number} size
    * @returns {boolean} true if process was allocated, false otherwise
    */
   allocate(size) {
@@ -161,7 +161,7 @@ class BestFit {
 
   /**
    * 分配内存
-   * @param {number} pid
+   * @param {number} size
    * @returns {boolean} true if process was allocated, false otherwise
    */
   allocate(size) {
@@ -317,7 +317,7 @@ class NextFit {
 
   /**
    * 分配内存
-   * @param {number} pid
+   * @param {number} size
    * @returns {boolean} true if process was allocated, false otherwise
    */
   allocate(size) {
@@ -519,7 +519,7 @@ class WorstFit {
 
   /**
    * 分配内存
-   * @param {number} pid
+   * @param {number} size
    * @returns {boolean} true if process was allocated, false otherwise
    */
   allocate(size) {
@@ -694,7 +694,7 @@ class TwoLevelSegregatedFit {
 
   /**
    * 分配内存
-   * @param {number} pid
+   * @param {number} size
    * @returns {boolean} true if process was allocated, false otherwise
    */
   allocate(size) {
@@ -861,7 +861,7 @@ class Paging {
 
   /**
    * 分配内存
-   * @param {number} pid
+   * @param {number} size
    * @returns {boolean} true if process was allocated, false otherwise
    */
   allocate(size) {
@@ -1050,7 +1050,7 @@ class BuddySystem {
 
   /**
    * 分配内存
-   * @param {number} pid
+   * @param {number} size
    * @returns {boolean} true if process was allocated, false otherwise
    */
   allocate(size) {
